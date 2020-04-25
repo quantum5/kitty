@@ -60,6 +60,7 @@ typedef VkBool32 (APIENTRY *PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR
 #include "wayland-pointer-constraints-unstable-v1-client-protocol.h"
 #include "wayland-idle-inhibit-unstable-v1-client-protocol.h"
 #include "wayland-primary-selection-unstable-v1-client-protocol.h"
+#include "wayland-layer-shell-unstable-v1-client-protocol.h"
 
 #define _glfw_dlopen(name) dlopen(name, RTLD_LAZY | RTLD_LOCAL)
 #define _glfw_dlclose(handle) dlclose(handle)
@@ -145,6 +146,10 @@ typedef struct _GLFWwindowWayland
         struct xdg_toplevel*    toplevel;
         struct zxdg_toplevel_decoration_v1* decoration;
     } xdg;
+
+    struct {
+        struct zwlr_layer_surface_v1* surface;
+    } layer;
 
     _GLFWcursor*                currentCursor;
     double                      cursorPosX, cursorPosY;
@@ -232,6 +237,7 @@ typedef struct _GLFWlibraryWayland
     struct zwp_primary_selection_device_manager_v1* primarySelectionDeviceManager;
     struct zwp_primary_selection_device_v1*    primarySelectionDevice;
     struct zwp_primary_selection_source_v1*    dataSourceForPrimarySelection;
+    struct zwlr_layer_shell_v1* layer_shell;
 
     int                         compositorVersion;
     int                         seatVersion;

@@ -679,6 +679,64 @@ static bool createXdgSurface(_GLFWwindow* window)
     return true;
 }
 
+static void layerSurfaceHandleConfigure(void* data,
+                                        struct zwlr_layer_surface_v1* surface,
+                                        uint32_t serial,
+                                        uint32_t width,
+                                        uint32_t height) {
+    _GLFWwindow* window = data;
+    window->wl.fullscreened = true;
+    dispatchChangesAfterConfigure(window, width, height);
+    zwlr_layer_surface_v1_ack_configure(surface, serial);
+}
+
+
+static void layerSurfaceHandleClosed(void* data,
+                                    struct zwlr_layer_surface_v1* surface UNUSED) {
+    _GLFWwindow* window = data;
+    _glfwInputWindowCloseRequest(window);
+}
+
+static const struct zwlr_layer_surface_v1_listener layerSurfaceListener = {
+    layerSurfaceHandleConfigure,
+    layerSurfaceHandleClosed,
+};
+
+static bool createLayerSurface(_GLFWwindow* window)
+{
+    printf("_glfw.wl.layer_shell: %p\n", (void *) _glfw.wl.layer_shell);
+    window->wl.layer.surface =
+        zwlr_layer_shell_v1_get_layer_surface(_glfw.wl.layer_shell,
+            window->wl.surface, NULL, ZWLR_LAYER_SHELL_V1_LAYER_BOTTOM,
+            "kitty");
+
+    if (!window->wl.layer.surface)
+    {
+        _glfwInputError(GLFW_PLATFORM_ERROR,
+                        "Wayland: layer-surface creation failed");
+        return false;
+    }
+
+    zwlr_layer_surface_v1_set_size(window->wl.layer.surface, 0, 0);
+    zwlr_layer_surface_v1_set_anchor(window->wl.layer.surface,
+        ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP |
+        ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM |
+        ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT |
+        ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT);
+    zwlr_layer_surface_v1_set_exclusive_zone(window->wl.layer.surface, -1);
+    zwlr_layer_surface_v1_set_margin(window->wl.layer.surface, 0, 0, 0, 0);
+    zwlr_layer_surface_v1_set_keyboard_interactivity(window->wl.layer.surface, 0);
+
+    zwlr_layer_surface_v1_add_listener(window->wl.layer.surface,
+                                       &layerSurfaceListener,
+                                       window);
+
+    wl_surface_commit(window->wl.surface);
+    wl_display_roundtrip(_glfw.wl.display);
+
+    return true;
+}
+
 static void
 setCursorImage(_GLFWcursorWayland* cursorWayland)
 {
@@ -888,8 +946,16 @@ int _glfwPlatformCreateWindow(_GLFWwindow* window,
 
     if (wndconfig->visible)
     {
-        if (!createXdgSurface(window))
-            return false;
+        if (_glfw.wl.layer_shell)
+        {
+            if (!createLayerSurface(window))
+                return false;
+        }
+        else
+        {
+            if (!createXdgSurface(window))
+                return false;
+        }
 
         window->wl.visible = true;
     }
