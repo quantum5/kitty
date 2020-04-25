@@ -60,7 +60,7 @@ typedef VkBool32 (APIENTRY *PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR
 #include "wayland-pointer-constraints-unstable-v1-client-protocol.h"
 #include "wayland-idle-inhibit-unstable-v1-client-protocol.h"
 #include "wayland-primary-selection-unstable-v1-client-protocol.h"
-#include "wayland-layer-shell-unstable-v1-client-protocol.h"
+#include "wayland-wlr-layer-shell-unstable-v1-client-protocol.h"
 
 #define _glfw_dlopen(name) dlopen(name, RTLD_LAZY | RTLD_LOCAL)
 #define _glfw_dlclose(handle) dlclose(handle)
