@@ -310,6 +310,7 @@ struct _GLFWwndconfig
     } x11;
     struct {
         char      appId[256];
+        bool      background;
     } wl;
 };
 

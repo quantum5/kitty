@@ -455,6 +455,9 @@ GLFWAPI void glfwWindowHint(int hint, int value)
         case GLFW_REFRESH_RATE:
             _glfw.hints.refreshRate = value;
             return;
+        case GLFW_WAYLAND_BACKGROUND:
+            _glfw.hints.window.wl.background = value;
+            return;
     }
 
     _glfwInputError(GLFW_INVALID_ENUM, "Invalid window hint 0x%08X", hint);

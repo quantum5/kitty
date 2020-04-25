@@ -509,9 +509,10 @@ native_window_handle(GLFWwindow *w) {
 static PyObject*
 create_os_window(PyObject UNUSED *self, PyObject *args) {
     int x = -1, y = -1;
+    bool background = false;
     char *title, *wm_class_class, *wm_class_name;
     PyObject *load_programs = NULL, *get_window_size, *pre_show_callback;
-    if (!PyArg_ParseTuple(args, "OOsss|Oii", &get_window_size, &pre_show_callback, &title, &wm_class_name, &wm_class_class, &load_programs, &x, &y)) return NULL;
+    if (!PyArg_ParseTuple(args, "OOsss|Oiip", &get_window_size, &pre_show_callback, &title, &wm_class_name, &wm_class_class, &load_programs, &x, &y, &background)) return NULL;
 
     static bool is_first_window = true;
     if (is_first_window) {
@@ -536,6 +537,7 @@ create_os_window(PyObject UNUSED *self, PyObject *args) {
     glfwWindowHintString(GLFW_X11_INSTANCE_NAME, wm_class_name);
     glfwWindowHintString(GLFW_X11_CLASS_NAME, wm_class_class);
     glfwWindowHintString(GLFW_WAYLAND_APP_ID, wm_class_class);
+    glfwWindowHint(GLFW_WAYLAND_BACKGROUND, background);
 #endif
 
     if (global_state.num_os_windows >= MAX_CHILDREN) {

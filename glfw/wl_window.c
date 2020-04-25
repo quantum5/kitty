@@ -704,7 +704,13 @@ static const struct zwlr_layer_surface_v1_listener layerSurfaceListener = {
 
 static bool createLayerSurface(_GLFWwindow* window)
 {
-    printf("_glfw.wl.layer_shell: %p\n", (void *) _glfw.wl.layer_shell);
+    if (!_glfw.wl.layer_shell)
+    {
+        _glfwInputError(GLFW_PLATFORM_ERROR,
+                        "Wayland: layer-shell protocol unsupported");
+        return false;
+    }
+
     window->wl.layer.surface =
         zwlr_layer_shell_v1_get_layer_surface(_glfw.wl.layer_shell,
             window->wl.surface, NULL, ZWLR_LAYER_SHELL_V1_LAYER_BOTTOM,
@@ -946,7 +952,7 @@ int _glfwPlatformCreateWindow(_GLFWwindow* window,
 
     if (wndconfig->visible)
     {
-        if (_glfw.wl.layer_shell)
+        if (wndconfig->wl.background)
         {
             if (!createLayerSurface(window))
                 return false;

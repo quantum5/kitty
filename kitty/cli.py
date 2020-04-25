@@ -645,6 +645,11 @@ choices=normal,fullscreen,maximized,minimized
 Control how the initial kitty window is created.
 
 
+--background
+type=bool-set
+On Wayland, show the kitty window as the desktop background.
+
+
 # Debugging options
 
 --version -v
